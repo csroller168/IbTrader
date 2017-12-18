@@ -1,4 +1,6 @@
-# TODO: put this in git, change getting time to IBApi.EWrapper.nextValidID
+# TODOs:
+# change getting time to IBApi.EWrapper.nextValidId
+# refactor into separate classes
 
 from ibapi.wrapper import EWrapper
 from ibapi.client import EClient
@@ -42,10 +44,20 @@ class TestWrapper(EWrapper):
 
         return time_queue
 
+    def init_valid_id(self):
+        id_queue = queue.Queue()
+        self._id_queue = id_queue
+        return id_queue
+
     def currentTime(self, time_from_server):
         ## Overriden method
         self._time_queue.put(time_from_server)
 
+    def nextValidId(self, id_from_server):
+        self._id_queue.put(id_from_server)
+
+    def Close(self):
+        pass
 
 class TestClient(EClient):
     """
@@ -85,6 +97,25 @@ class TestClient(EClient):
 
         return current_time
 
+    def next_valid_id(self):
+        id_store = self.wrapper.init_valid_id()
+        print("Getting next valid ID from the server... ")
+        self.reqIds(1)
+
+        ## Try and get a valid time
+        MAX_WAIT_SECONDS = 10
+
+        try:
+            nextValidId = id_store.get(timeout=MAX_WAIT_SECONDS)
+        except queue.Empty:
+            print("Exceeded maximum wait for wrapper to respond")
+            nextValidId = None
+
+        while self.wrapper.is_error():
+            print(self.get_error())
+
+        return nextValidId
+
 class TestApp(TestWrapper, TestClient):
     def __init__(self, ipaddress, portid, clientid):
         TestWrapper.__init__(self)
@@ -107,8 +138,8 @@ if __name__ == '__main__':
 
     app = TestApp("127.0.0.1", 4002, 168)
 
-    current_time = app.speaking_clock()
+    next_id = app.next_valid_id()
 
-    print(current_time)
+    print(next_id)
 
     app.disconnect()
