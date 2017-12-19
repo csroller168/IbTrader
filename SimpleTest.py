@@ -6,7 +6,7 @@ from ibapi.client import EClient
 from threading import Thread
 import queue
 
-class TestWrapper(EWrapper):
+class ResponseWrapper(EWrapper):
 
     ## error handling code
     def init_error(self):
@@ -42,7 +42,7 @@ class TestWrapper(EWrapper):
     def Close(self):
         pass
 
-class TestClient(EClient):
+class RequestClient(EClient):
     """
     The client method
     We don't override native methods, but instead call them from our own wrappers
@@ -70,10 +70,10 @@ class TestClient(EClient):
 
         return nextValidId
 
-class TestApp(TestWrapper, TestClient):
+class IbRepo(ResponseWrapper, RequestClient):
     def __init__(self, ipaddress, portid, clientid):
-        TestWrapper.__init__(self)
-        TestClient.__init__(self, wrapper=self)
+        ResponseWrapper.__init__(self)
+        RequestClient.__init__(self, wrapper=self)
 
         self.connect(ipaddress, portid, clientid)
 
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     ## Check that the port is the same as on the Gateway
     ## ipaddress is 127.0.0.1 if one same machine, clientid is arbitrary
 
-    app = TestApp("127.0.0.1", 4002, 168)
+    app = IbRepo("127.0.0.1", 4002, 168)
 
     next_id = app.next_valid_id()
 
