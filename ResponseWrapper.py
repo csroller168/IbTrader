@@ -1,4 +1,7 @@
 from ibapi.wrapper import EWrapper
+from ibapi.contract import Contract
+from ibapi.order import Order
+from ibapi.order_state import OrderState
 import queue
 
 class ResponseWrapper(EWrapper):
@@ -36,3 +39,21 @@ class ResponseWrapper(EWrapper):
 
     def Close(self):
         pass
+
+    def openOrder(self, orderId: int, contract: Contract, order: Order,
+                  orderState: OrderState):
+        super().openOrder(orderId, contract, order, orderState)
+        print("OpenOrder. ID:", orderId, contract.symbol, contract.secType, "@", contract.exchange, ":", order.action, order.orderType, order.totalQuantity, orderState.status)
+        pass
+
+    def orderStatus(self, orderId: int, status: str, filled: float,
+                    remaining: float, avgFillPrice: float, permId: int,
+                    parentId: int, lastFillPrice: float, clientId: int,
+                    whyHeld: str, mktCapPrice: float):
+        super().orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice)
+        print("OrderStatus. Id: ", orderId, ", Status: ", status, ", Filled: ", filled,
+        ", Remaining: ", remaining, ", AvgFillPrice: ", avgFillPrice,
+        ", PermId: ", permId, ", ParentId: ", parentId, ", LastFillPrice: ",
+        lastFillPrice, ", ClientId: ", clientId, ", WhyHeld: ",
+        whyHeld, ", MktCapPrice: ", mktCapPrice)
+

@@ -1,4 +1,6 @@
 from ibapi.client import EClient
+from ibapi.contract import Contract
+from ibapi.order import Order
 import queue
 
 class RequestClient(EClient):
@@ -28,3 +30,20 @@ class RequestClient(EClient):
             print("An error occurred")
 
         return nextValidId
+
+    def placeSampleOrder(self):
+        oid = self.next_valid_id()
+
+        contract = Contract()
+        contract.symbol = "MSFT"
+        contract.secType = "STK"
+        contract.currency = "USD"
+        contract.exchange = "SMART"
+
+        order = Order()
+        order.action = "BUY"
+        order.orderType = "MKT"
+        order.totalQuantity = 5
+
+        self.placeOrder(oid, contract, order)
+        pass
