@@ -52,12 +52,11 @@ class ResponseWrapper(EWrapper):
         pass
 
     def orderStatus(self, orderId: OrderId, status: str, filled: float, remaining: float, avgFillPrice: float,
-                    permId: int, parentId: int, lastFillPrice: float, clientId: int, whyHeld: str, mktCapPrice: float):
-        super().orderStatus(orderId, status, filled, remaining,
-        avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice)
+                    permId: int, parentId: int, lastFillPrice: float, clientId: int, whyHeld: str):
+        super().orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld)
         print("OrderStatus. Id: ", orderId, ", Status: ", status, ", Filled: ", filled,
         ", Remaining: ", remaining, ", AvgFillPrice: ", avgFillPrice,
         ", PermId: ", permId, ", ParentId: ", parentId, ", LastFillPrice: ",
         lastFillPrice, ", ClientId: ", clientId, ", WhyHeld: ",
-        whyHeld, ", MktCapPrice: ", mktCapPrice)
+        whyHeld)
 

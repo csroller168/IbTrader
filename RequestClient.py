@@ -35,7 +35,7 @@ class RequestClient(EClient):
         oid = self.next_valid_id()
 
         contract = Contract()
-        contract.symbol = "MSFT"
+        contract.symbol = "AAPL"
         contract.secType = "STK"
         contract.currency = "USD"
         contract.exchange = "SMART"
