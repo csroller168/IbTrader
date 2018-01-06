@@ -1,8 +1,11 @@
 from IbRepo import IbRepo
+from time import sleep
+
 
 if __name__ == '__main__':
     app = IbRepo("127.0.0.1", 4002, 168)
-    next_id = app.next_valid_id()
+    app.init_error()
     app.placeSampleOrder()
-    print(next_id)
+    sleep(10)
+    # initialize a queue for the response in the wrapper, similar to the get valid id call
     app.disconnect()

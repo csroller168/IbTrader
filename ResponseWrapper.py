@@ -1,4 +1,4 @@
-from ibapi.wrapper import EWrapper
+from ibapi.wrapper import EWrapper, OrderId
 from ibapi.contract import Contract
 from ibapi.order import Order
 from ibapi.order_state import OrderState
@@ -37,6 +37,11 @@ class ResponseWrapper(EWrapper):
     def nextValidId(self, id_from_server):
         self._id_queue.put(id_from_server)
 
+    def init_order_status(self):
+        order_status_queue = queue.Queue()
+        self._order_status_queue = order_status_queue
+        return order_status_queue
+
     def Close(self):
         pass
 
@@ -46,11 +51,10 @@ class ResponseWrapper(EWrapper):
         print("OpenOrder. ID:", orderId, contract.symbol, contract.secType, "@", contract.exchange, ":", order.action, order.orderType, order.totalQuantity, orderState.status)
         pass
 
-    def orderStatus(self, orderId: int, status: str, filled: float,
-                    remaining: float, avgFillPrice: float, permId: int,
-                    parentId: int, lastFillPrice: float, clientId: int,
-                    whyHeld: str, mktCapPrice: float):
-        super().orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice)
+    def orderStatus(self, orderId: OrderId, status: str, filled: float, remaining: float, avgFillPrice: float,
+                    permId: int, parentId: int, lastFillPrice: float, clientId: int, whyHeld: str, mktCapPrice: float):
+        super().orderStatus(orderId, status, filled, remaining,
+        avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice)
         print("OrderStatus. Id: ", orderId, ", Status: ", status, ", Filled: ", filled,
         ", Remaining: ", remaining, ", AvgFillPrice: ", avgFillPrice,
         ", PermId: ", permId, ", ParentId: ", parentId, ", LastFillPrice: ",
