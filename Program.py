@@ -7,5 +7,5 @@ if __name__ == '__main__':
     app.init_error()
     app.placeSampleOrder()
     sleep(5)
-    # initialize a queue for the response in the wrapper, similar to the get valid id call
+    # request a contract rather than build one (test with msft)
     app.disconnect()

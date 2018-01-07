@@ -31,19 +31,45 @@ class RequestClient(EClient):
 
         return nextValidId
 
+    def request_matching_symbols(self, symbol):
+        rid = self.next_valid_id()
+        queue = self.wrapper.init_match_symbols()
+        self.reqMatchingSymbols(rid, symbol)
+        MAX_WAIT_SECONDS = 10
+        try:
+            response =  queue.get(timeout=MAX_WAIT_SECONDS)
+        except queue.Empty:
+            print("Exceeded maximum wait for wrapper to respond")
+            response = None
+
+        while self.wrapper.is_error():
+            print("An error occurred")
+
+        return response
+
     def placeSampleOrder(self):
         oid = self.next_valid_id()
 
         contract = Contract()
-        contract.symbol = "AAPL"
+        contract.symbol = "MSFT"
         contract.secType = "STK"
         contract.currency = "USD"
         contract.exchange = "SMART"
+        contract.primaryExchange = "ISLAND"
 
         order = Order()
         order.action = "BUY"
         order.orderType = "MKT"
         order.totalQuantity = 5
 
+        queue = self.wrapper.init_order_status()
         self.placeOrder(oid, contract, order)
+        MAX_WAIT_SECONDS = 10
+        try:
+            queue.get(timeout=MAX_WAIT_SECONDS)
+        except queue.Empty:
+            print("Exceeded maximum wait for wrapper to respond")
+
+        if self.wrapper.is_error():
+            print("An error occurred")
         pass

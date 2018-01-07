@@ -1,4 +1,4 @@
-from ibapi.wrapper import EWrapper, OrderId
+from ibapi.wrapper import EWrapper, OrderId, ListOfContractDescription
 from ibapi.contract import Contract
 from ibapi.order import Order
 from ibapi.order_state import OrderState
@@ -37,10 +37,19 @@ class ResponseWrapper(EWrapper):
     def nextValidId(self, id_from_server):
         self._id_queue.put(id_from_server)
 
+    def init_match_symbols(self):
+        match_symbols_queue = queue.Queue()
+        self._match_symbols_queue = match_symbols_queue
+        return match_symbols_queue
+
     def init_order_status(self):
         order_status_queue = queue.Queue()
         self._order_status_queue = order_status_queue
         return order_status_queue
+
+    def symbolSamples(self, reqId:int,
+                      contractDescriptions:ListOfContractDescription):
+        self._match_symbols_queue.put(contractDescriptions)
 
     def Close(self):
         pass
@@ -54,6 +63,7 @@ class ResponseWrapper(EWrapper):
     def orderStatus(self, orderId: OrderId, status: str, filled: float, remaining: float, avgFillPrice: float,
                     permId: int, parentId: int, lastFillPrice: float, clientId: int, whyHeld: str):
         super().orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld)
+        self._order_status_queue.put(1)
         print("OrderStatus. Id: ", orderId, ", Status: ", status, ", Filled: ", filled,
         ", Remaining: ", remaining, ", AvgFillPrice: ", avgFillPrice,
         ", PermId: ", permId, ", ParentId: ", parentId, ", LastFillPrice: ",
