@@ -1,11 +1,19 @@
 from IbRepo import IbRepo
 from time import sleep
+from YahooRepo import YahooRepo
+
 
 
 if __name__ == '__main__':
-    app = IbRepo("127.0.0.1", 4002, 168)
-    app.init_error()
-    app.placeSampleOrder()
-    sleep(5)
-    # request a contract rather than build one (test with msft)
-    app.disconnect()
+    symbols = ("IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU")
+    repo = YahooRepo()
+    for symbol in symbols:
+        repo.GetData(symbol)
+
+    pass
+    # app = IbRepo("127.0.0.1", 4002, 168)
+    # app.init_error()
+    # app.placeSampleOrder()
+    # sleep(5)
+    # # request a contract rather than build one (test with msft)
+    # app.disconnect()
