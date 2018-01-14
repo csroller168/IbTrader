@@ -1,12 +1,12 @@
 from IbRepo import IbRepo
 from time import sleep
-from YahooRepo import YahooRepo
+from GoogleRepo import GoogleRepo
 
 
 
 if __name__ == '__main__':
     symbols = ("IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU")
-    repo = YahooRepo()
+    repo = GoogleRepo()
     for symbol in symbols:
         repo.GetData(symbol)
 
