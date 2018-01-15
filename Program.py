@@ -1,14 +1,11 @@
 from IbRepo import IbRepo
 from time import sleep
-from GoogleRepo import GoogleRepo
-
+from SectorRotationStrategy import SectorRotationStrategy
 
 
 if __name__ == '__main__':
-    symbols = ("IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU")
-    repo = GoogleRepo()
-    for symbol in symbols:
-        repo.GetData(symbol)
+    strategy = SectorRotationStrategy(100000)
+    strategy.Execute()
 
     pass
     # app = IbRepo("127.0.0.1", 4002, 168)
