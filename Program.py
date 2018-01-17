@@ -1,11 +1,12 @@
 from IbRepo import IbRepo
 from time import sleep
 from SectorRotationStrategy import SectorRotationStrategy
+from datetime import date
 
 
 if __name__ == '__main__':
-    strategy = SectorRotationStrategy(100000)
-    strategy.Execute()
+    strategy = SectorRotationStrategy(100000, date(2018,1,8))
+    strategy.GetPortfolio()
 
     pass
     # app = IbRepo("127.0.0.1", 4002, 168)

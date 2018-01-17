@@ -1,6 +1,7 @@
 import urllib.request
 import csv
-from datetime import date, datetime
+from datetime import datetime
+from collections import OrderedDict
 
 
 class GoogleRepo:
@@ -15,12 +16,11 @@ class GoogleRepo:
     def ClosingPrices(self, symbol):
         prices = {}
         with open(self.DataFileName(symbol)) as csvfile:
-            #reader = csv.reader(csvfile, delimiter=',')
             reader = csv.DictReader(csvfile)
             for row in reader:
                 day = datetime.strptime(row['\ufeffDate'], "%d-%b-%y").date()
-                prices[day] = row['Close']
-            print(prices)
+                prices[day] = float(row['Close'])
+        return OrderedDict(sorted(prices.items(), key=lambda t: t[0]))
 
     def DataFileName(self, symbol):
         return self._dataFileFormat.format(symbol)
