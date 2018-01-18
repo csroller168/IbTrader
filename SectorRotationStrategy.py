@@ -1,4 +1,5 @@
 from GoogleRepo import GoogleRepo
+from Asset import Asset
 
 class SectorRotationStrategy:
     def __init__(self, holdingsValue, tradingDay):
@@ -10,11 +11,10 @@ class SectorRotationStrategy:
 
     def IsInMarket(self):
         repo = GoogleRepo()
-        #repo.GetData(self._benchmarkSymbol)
         benchmarkPrices = repo.ClosingPrices(self._benchmarkSymbol)
         return (self.Momentum(benchmarkPrices) > 1)
 
-    def GetPortfolio(self):
+    def GetTargetPortfolio(self):
         repo = GoogleRepo()
 
         if(not self.IsInMarket()):
@@ -23,7 +23,6 @@ class SectorRotationStrategy:
         prices = {}
         momentums = {}
         for symbol in self._symbols:
-            #repo.GetData(symbol)
             priceData = repo.ClosingPrices(symbol)
             momentum = self.Momentum(priceData)
             if momentum > 1:
@@ -32,7 +31,12 @@ class SectorRotationStrategy:
 
         buyThreshold = sorted(momentums.values())[-min(self._maxNumPositions,len(momentums))]
         symbolsToBuy = {k: v for k,v in momentums.items() if v >= buyThreshold}
-        # TODO: buy equal weight symbolsToBuy - return portfolio of assets
+        assets = []
+        for symbol in symbolsToBuy:
+            sharePrice = prices[symbol][-1]
+            numShares = int(self._holdingsValue / len(assets) / sharePrice)
+            assets.append(Asset(symbol, sharePrice, numShares))
+        return assets
 
     def Momentum(self, prices):
         idx = len(prices)-1
