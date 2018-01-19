@@ -33,8 +33,8 @@ class SectorRotationStrategy:
         symbolsToBuy = {k: v for k,v in momentums.items() if v >= buyThreshold}
         assets = []
         for symbol in symbolsToBuy:
-            sharePrice = prices[symbol][-1]
-            numShares = int(self._holdingsValue / len(assets) / sharePrice)
+            sharePrice = list(prices[symbol].values())[-1]
+            numShares = int(self._holdingsValue / len(symbolsToBuy) / sharePrice)
             assets.append(Asset(symbol, sharePrice, numShares))
         return assets
 
