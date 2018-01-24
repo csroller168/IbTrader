@@ -3,13 +3,12 @@ from time import sleep
 from SectorRotationStrategy import SectorRotationStrategy
 from OrderGenerator import OrderGenerator
 from datetime import date
+from Backtester import Backtester
+from datetime import date
 
 
 if __name__ == '__main__':
-    strategy = SectorRotationStrategy(100000, date(2018,1,8))
-    portfolio = strategy.GetTargetPortfolio()
-    orders = OrderGenerator().MakeOrders([], portfolio)
-    print(orders)
+    Backtester(100000, date(2017, 1, 3), date(2017, 12, 29)).Run()
 
     # maybe make this take an argument that signals what action to perform
 

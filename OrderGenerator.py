@@ -18,6 +18,7 @@ class OrderGenerator:
             else:
                 # else, sell all
                 orders.append(Order("Sell", currentAsset))
+
         for targetAsset in targetPortfolio:
             # if not exists in current, buy all
             if not any([a for a in currentPortfolio if a._symbol == targetAsset._symbol]):
