@@ -1,6 +1,6 @@
 import urllib.request
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import OrderedDict
 
 
@@ -20,6 +20,19 @@ class GoogleRepo:
             for row in reader:
                 day = datetime.strptime(row['\ufeffDate'], "%d-%b-%y").date()
                 prices[day] = float(row['Close'])
+
+        # fill forward gaps
+        gaps = {}
+        previousDay = min(prices.keys()) - timedelta(days=1)
+        previousValue = 0
+        for day, value in sorted(prices.items(), key=lambda t: t[0]):
+            expectedDay = previousDay + timedelta(days=1)
+            while expectedDay < day:
+                gaps[expectedDay] = previousValue
+                expectedDay += timedelta(days=1)
+            previousDay = day
+            previousValue = prices[previousDay]
+        prices.update(gaps)
         return OrderedDict(sorted(prices.items(), key=lambda t: t[0]))
 
     def DataFileName(self, symbol):

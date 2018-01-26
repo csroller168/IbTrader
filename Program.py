@@ -8,7 +8,7 @@ from datetime import date
 
 
 if __name__ == '__main__':
-    Backtester(100000, date(2017, 1, 3), date(2017, 12, 29)).Run()
+    Backtester(100000, date(2005, 1, 3), date(2018, 1, 20)).Run()
 
     # maybe make this take an argument that signals what action to perform
 

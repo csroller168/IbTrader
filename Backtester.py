@@ -35,7 +35,7 @@ class Backtester:
             print(tradingDays[idx], ":  ", totalValue)
 
             # Rebalance if due
-            if idx % 5 == 0:
+            if idx % 7 == 0:
                 targetPortfolio = SectorRotationStrategy(totalValue, tradingDays[idx]).GetTargetPortfolio()
                 orders = OrderGenerator().MakeOrders(currentPortfolio, targetPortfolio)
                 cash += sum(o.Proceeds() for o in orders)
