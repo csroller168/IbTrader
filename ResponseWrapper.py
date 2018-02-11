@@ -2,6 +2,7 @@ from ibapi.wrapper import EWrapper, OrderId, ListOfContractDescription
 from ibapi.contract import Contract
 from ibapi.order import Order
 from ibapi.order_state import OrderState
+from Asset import Asset
 import queue
 
 class ResponseWrapper(EWrapper):
@@ -50,6 +51,28 @@ class ResponseWrapper(EWrapper):
     def symbolSamples(self, reqId:int,
                       contractDescriptions:ListOfContractDescription):
         self._match_symbols_queue.put(contractDescriptions)
+
+    def init_positions(self):
+        positions_queue = queue.Queue()
+        self._positionsQueue = positions_queue
+        return positions_queue
+
+    def position(self, account: str, contract: Contract, position: float,
+                 avgCost: float):
+        super().position(account, contract, position, avgCost)
+        self._positionsQueue.put(Asset(contract.symbol, avgCost, position))
+        print("Position.", account, "Symbol:", contract.symbol, "SecType:",
+              contract.secType, "Currency:", contract.currency,
+              "Position:", position, "Avg cost:", avgCost)
+
+    def init_positionEnd(self):
+        positionEnd_queue = queue.Queue()
+        self._positionEnd_queue = positionEnd_queue
+        return self._positionEnd_queue
+
+    def positionEnd(self):
+        super().positionEnd()
+        self._positionEnd_queue.put(True)
 
     def Close(self):
         pass
