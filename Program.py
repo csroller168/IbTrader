@@ -14,13 +14,12 @@ if __name__ == '__main__':
 
     # todo: add cash via reqAccountSummary (http://interactivebrokers.github.io/tws-api/classIBApi_1_1EClient.html#a3e0d55d36cd416639b97ee6e47a86fe9)
     # todo: request contracts rather than build them
-    # todo: place orders
 
 
-    app = IbRepo("127.0.0.1", 4001, 168)
+    app = IbRepo("127.0.0.1", 4002, 168)
     currentPortfolio = app.get_current_portfolio()
-
-    value = sum(a.Value for a in currentPortfolio)
+    cashValue = app.get_cash_value()
+    value = sum(a.Value for a in currentPortfolio) + cashValue
     targetPortfolio = SectorRotationStrategy(value, date.today()).GetTargetPortfolio()
     orders = OrderGenerator().MakeOrders(currentPortfolio, targetPortfolio)
     for order in orders:

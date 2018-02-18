@@ -32,6 +32,26 @@ class RequestClient(EClient):
 
         return nextValidId
 
+    def get_cash_value(self):
+        rid = self.next_valid_id()
+        print("Getting next valid ID from the server... ")
+        cash_store = self.wrapper.init_cash_store()
+        self.reqAccountSummary(rid, "All", "TotalCashValue")
+
+        ## Try and get next valid ID
+        MAX_WAIT_SECONDS = 10
+
+        try:
+            cashValue = cash_store.get(timeout=MAX_WAIT_SECONDS)
+        except queue.Empty:
+            print("Exceeded maximum wait for wrapper to respond")
+            cashValue = 0
+
+        if self.wrapper.is_error():
+            print("An error occurred")
+
+        return cashValue
+
     def get_current_portfolio(self):
         porfolio_store = self.wrapper.init_positions()
         getComplete = self.wrapper.init_positionEnd()

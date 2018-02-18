@@ -93,3 +93,13 @@ class ResponseWrapper(EWrapper):
         lastFillPrice, ", ClientId: ", clientId, ", WhyHeld: ",
         whyHeld)
 
+    def init_cash_store(self):
+        cash_store_queue = queue.Queue()
+        self._cash_store_queue = cash_store_queue
+        return self._cash_store_queue
+
+    def accountSummary(self, reqId: int, account: str, tag: str, value: str, currency: str):
+        super().accountSummary(reqId, account, tag, value, currency)
+        self._cash_store_queue.put(float(value))
+        print("Acct Summary. ReqId:", reqId, "Acct:", account,
+              "Tag: ", tag, "Value:", value, "Currency:", currency)
