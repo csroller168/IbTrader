@@ -19,10 +19,11 @@ if __name__ == '__main__':
     app = IbRepo("127.0.0.1", 4002, 168)
     currentPortfolio = app.get_current_portfolio()
     cashValue = app.get_cash_value()
-    value = sum(a.Value for a in currentPortfolio) + cashValue
+    value = float(sum(a.Value for a in currentPortfolio))
+    value += cashValue
     targetPortfolio = SectorRotationStrategy(value, date.today()).GetTargetPortfolio()
     orders = OrderGenerator().MakeOrders(currentPortfolio, targetPortfolio)
     for order in orders:
-        app.placeOrder(order._type, order._asset._numShares, order._asset._symbol)
+        app.orderStock(order._type, order._asset._numShares, order._asset._symbol)
 
     app.disconnect()

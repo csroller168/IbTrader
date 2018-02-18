@@ -89,7 +89,7 @@ class RequestClient(EClient):
 
         return response
 
-    def placeOrder(self, type, shares, symbol):
+    def orderStock(self, type, shares, symbol):
         oid = self.next_valid_id()
 
         contract = Contract()
