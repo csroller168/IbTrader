@@ -43,7 +43,7 @@ class RequestClient(EClient):
 
         try:
             done = getComplete.get(timeout=MAX_WAIT_SECONDS)
-            positions = porfolio_store.get()
+            positions = porfolio_store
         except queue.Empty:
             print("Exceeded maximum wait for wrapper to respond")
             positions = None

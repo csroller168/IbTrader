@@ -53,14 +53,14 @@ class ResponseWrapper(EWrapper):
         self._match_symbols_queue.put(contractDescriptions)
 
     def init_positions(self):
-        positions_queue = queue.Queue()
-        self._positionsQueue = positions_queue
-        return positions_queue
+        positions = list()
+        self._positions = positions
+        return positions
 
     def position(self, account: str, contract: Contract, position: float,
                  avgCost: float):
         super().position(account, contract, position, avgCost)
-        self._positionsQueue.put(Asset(contract.symbol, avgCost, position))
+        self._positions.append(Asset(contract.symbol, avgCost, position))
         print("Position.", account, "Symbol:", contract.symbol, "SecType:",
               contract.secType, "Currency:", contract.currency,
               "Position:", position, "Avg cost:", avgCost)

@@ -23,6 +23,7 @@ class SectorRotationStrategy:
         prices = {}
         momentums = {}
         for symbol in self._symbols:
+            repo.GetData(symbol)
             priceData = repo.ClosingPrices(symbol)
             momentum = self.Momentum(priceData)
             if momentum > 1:
@@ -33,7 +34,9 @@ class SectorRotationStrategy:
         symbolsToBuy = {k: v for k,v in momentums.items() if v >= buyThreshold}
         assets = []
         for symbol in symbolsToBuy:
-            idx = list(prices[symbol].keys()).index(self._tradingDay)
+            idx = len(prices[symbol])-1
+            if self._tradingDay in list(prices[symbol].keys()):
+                idx = list(prices[symbol].keys()).index(self._tradingDay)
             sharePrice = list(prices[symbol].values())[idx]
             numShares = int(self._holdingsValue / len(symbolsToBuy) / sharePrice)
             assets.append(Asset(symbol, sharePrice, numShares))
