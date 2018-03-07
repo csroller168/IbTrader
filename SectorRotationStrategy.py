@@ -16,6 +16,7 @@ class SectorRotationStrategy:
 
     def GetTargetPortfolio(self):
         repo = GoogleRepo()
+        repo.GetData(self._benchmarkSymbol)
 
         if(not self.IsInMarket()):
             return {}
