@@ -1,5 +1,6 @@
 import urllib.request
 import csv
+import sys, os
 from datetime import datetime, timedelta
 from collections import OrderedDict
 
@@ -8,11 +9,10 @@ from collections import OrderedDict
 class GoogleRepo:
     def __init__(self):
         self._downloadUrlFormat = "https://finance.google.com/finance/historical?q={}&startdate=22-Feb-2002&output=csv"
-        self._dataFileFormat = "./data/{}.csv"
+        self._dataFileFormat = os.path.dirname(sys.argv[0]) + "/data/{}.csv"
 
     def GetData(self, symbol):
         url = self._downloadUrlFormat.format(symbol)
-        #urllib.request.urlretrieve(url, self.DataFileName(symbol))
         request = urllib.request.Request(url)
         request.add_header('User-Agent', "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36")
         with urllib.request.urlopen(url) as response, open(self.DataFileName(symbol), 'wb') as out_file:
