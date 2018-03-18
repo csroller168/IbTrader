@@ -3,8 +3,7 @@ import csv
 import sys, os
 from datetime import datetime, timedelta
 from collections import OrderedDict
-
-
+import requests
 
 class GoogleRepo:
     def __init__(self):
@@ -13,11 +12,10 @@ class GoogleRepo:
 
     def GetData(self, symbol):
         url = self._downloadUrlFormat.format(symbol)
-        request = urllib.request.Request(url)
-        request.add_header('User-Agent', "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36")
-        with urllib.request.urlopen(url) as response, open(self.DataFileName(symbol), 'wb') as out_file:
-            data = response.read()
-            out_file.write(data)
+        filename = self.DataFileName(symbol)
+        r = requests.get(url)
+        with open(filename, 'wb') as f:
+            f.write(r.content)
 
     def ClosingPrices(self, symbol):
         prices = {}
