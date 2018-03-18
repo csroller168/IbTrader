@@ -4,11 +4,12 @@ import sys, os
 from datetime import datetime, timedelta
 from collections import OrderedDict
 import requests
+from os.path import dirname, abspath
 
 class GoogleRepo:
     def __init__(self):
         self._downloadUrlFormat = "https://finance.google.com/finance/historical?q={}&startdate=22-Feb-2002&output=csv"
-        self._dataFileFormat = os.path.dirname(sys.argv[0]) + "/data/{}.csv"
+        self._dataFileFormat = dirname(abspath(__file__)) + "/data/{}.csv"
 
     def GetData(self, symbol):
         url = self._downloadUrlFormat.format(symbol)
