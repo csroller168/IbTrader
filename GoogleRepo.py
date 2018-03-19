@@ -1,6 +1,4 @@
-import urllib.request
 import csv
-import sys, os
 from datetime import datetime, timedelta
 from collections import OrderedDict
 import requests

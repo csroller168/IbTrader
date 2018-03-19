@@ -20,6 +20,6 @@ if __name__ == '__main__':
         value += cashValue
         targetPortfolio = SectorRotationStrategy(value, date.today()).GetTargetPortfolio()
         orders = OrderGenerator().MakeOrders(currentPortfolio, targetPortfolio)
-        #for order in orders:
-        #    app.orderStock(order._type, order._asset._numShares, order._asset._symbol)
+        for order in orders:
+            app.orderStock(order._type, order._asset._numShares, order._asset._symbol)
         app.disconnect()
