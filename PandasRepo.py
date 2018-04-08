@@ -1,17 +1,14 @@
 import pandas as pd
 import pandas_datareader.data as web
 from datetime import datetime, timedelta
+import os
 import os.path
-#from os.path import dirname, abspath
-
-# todos:
-# save data file to local data directory (not home)
 
 class PandasRepo:
     def __init__(self):
-        self._dataFileFormat = "/Users/dennis/data/{}.dat"
+        self._dataFileFormat = os.getcwd() + "/data/{}.dat"
         self._dfEmpty = pd.DataFrame(columns=['Close', 'High', 'Low', 'Open', 'Volume'])
-        self._startDate = datetime(2018,4,2)
+        self._startDate = datetime(2002,2,2)
         pass
 
     def ClosingPrices(self, symbol:str):
