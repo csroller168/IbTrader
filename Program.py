@@ -21,5 +21,6 @@ if __name__ == '__main__':
         targetPortfolio = SectorRotationStrategy(value, date.today()).GetTargetPortfolio()
         orders = OrderGenerator().MakeOrders(currentPortfolio, targetPortfolio)
         for order in orders:
-            app.orderStock(order._type, order._asset._numShares, order._asset._symbol)
+            if order._asset._numShares > 0:
+                app.orderStock(order._type, order._asset._numShares, order._asset._symbol)
         app.disconnect()
