@@ -21,24 +21,23 @@ class SectorRotationStrategy:
         if(not self.IsInMarket()):
             return {}
 
-        prices = {}
+        closes = {}
         momentums = {}
         for symbol in self._symbols:
-            priceData = self._repo.GetData(symbol)['Close']
-            momentum = self.Momentum(priceData)
+            data = self._repo.GetData(symbol)
+            momentum = self.Momentum(data['Close'])
             if momentum > 1:
-                prices[symbol] = priceData
+                closes[symbol] = data
                 momentums[symbol] = momentum
 
         buyThreshold = sorted(momentums.values())[-min(self._maxNumPositions,len(momentums))]
         symbolsToBuy = {k: v for k,v in momentums.items() if v >= buyThreshold}
         assets = []
         for symbol in symbolsToBuy:
-            # TODO: refactor get shareprice by date (or most recent if date not present
-            idx = len(prices[symbol])-1
-            if self._tradingDay in list(prices[symbol].keys()):
-                idx = list(prices[symbol].keys()).index(self._tradingDay)
-            sharePrice = list(prices[symbol].values())[idx]
+            df = closes[symbol]
+            sharePrice = df['Close'][-1]
+            if (symbol, self._tradingDay) in closes[symbol].index:
+                sharePrice = df.loc[(symbol, self._tradingDay)]['Close']
             numShares = int(self._holdingsValue / len(symbolsToBuy) / sharePrice)
             assets.append(Asset(symbol, sharePrice, numShares))
         return assets

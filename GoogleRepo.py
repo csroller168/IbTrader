@@ -1,3 +1,10 @@
+###
+# todo: replace this repo with something other than google that will work
+# Separate app to get google data, or some other data source
+###
+
+
+
 import csv
 from datetime import datetime, timedelta
 from collections import OrderedDict
