@@ -6,7 +6,7 @@ import pandas_datareader.data as web
 
 class PandasRepo:
     def __init__(self):
-        self._dataFileFormat = os.getcwd() + "/data/{}.dat"
+        self._dataFileFormat = os.path.dirname(os.path.abspath(__file__)) + "/data/{}.dat"
         self._dfEmpty = pd.DataFrame(columns=['Close', 'High', 'Low', 'Open', 'Volume'])
         self._startDate = datetime(2002,2,2)
         pass
