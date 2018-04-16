@@ -1,5 +1,6 @@
 from PandasRepo import PandasRepo
 from Asset import Asset
+from pandas import Timestamp
 
 class SectorRotationStrategy:
     def __init__(self, holdingsValue, tradingDay):
@@ -9,12 +10,6 @@ class SectorRotationStrategy:
         self._holdingsValue = holdingsValue
         self._tradingDay = tradingDay
         self._repo = PandasRepo()
-
-    def IsInMarket(self):
-        close = self._repo.GetData(self._benchmarkSymbol)['Close']
-        smaSmall = close.rolling(50).mean()[-1]
-        smaLarge = close.rolling(200).mean()[-1]
-        return (smaSmall > smaLarge)
 
     def GetTargetPortfolio(self):
         if(not self.IsInMarket()):
@@ -36,7 +31,7 @@ class SectorRotationStrategy:
             df = closes[symbol]
             sharePrice = df['Close'][-1]
             if (symbol, self._tradingDay) in closes[symbol].index:
-                sharePrice = df.loc[(symbol, self._tradingDay)]['Close']
+                sharePrice = df.loc[(symbol, Timestamp(self._tradingDay))]['Close']
             numShares = int(self._holdingsValue / len(symbolsToBuy) / sharePrice)
             assets.append(Asset(symbol, sharePrice, numShares))
         return assets
@@ -45,3 +40,9 @@ class SectorRotationStrategy:
         sma50 = df.rolling(50).mean()[-1]
         sma200 = df.rolling(200).mean()[-1]
         return sma50/sma200
+
+    def IsInMarket(self):
+        close = self._repo.GetData(self._benchmarkSymbol)['Close']
+        smaSmall = close.rolling(50).mean()[-1]
+        smaLarge = close.rolling(200).mean()[-1]
+        return (smaSmall > smaLarge)
