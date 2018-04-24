@@ -10,7 +10,7 @@ if __name__ == '__main__':
     opt = sys.argv[1]
 
     if(opt == '1'):
-        Backtester(1000000, date(2015, 1, 2), date(2017, 12, 29)).Run()
+        Backtester(1000000, date(2003, 1, 2), date(2017, 12, 29)).Run()
     elif(opt == '2'):
         # todo: request contracts rather than build them
         app = IbRepo("127.0.0.1", 4002, 168)

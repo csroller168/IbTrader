@@ -20,7 +20,7 @@ class Backtester:
         # TODO: calculate sharpe ratio too as follows:
         # df['daily_ret'] = df['Close'].pct_change();
         # df['excess_daily_ret'] = df['daily_ret'] - 0.05/252
-        # np.sqrt(252) * df['excess_daily_ret'].mean() / df['excess_daily_ret'].std()
+        # sharpe = np.sqrt(252) * df['excess_daily_ret'].mean() / df['excess_daily_ret'].std()
         repo = PandasRepo()
         df = repo.GetData(self._benchmarkSymbol)
         tradingDays = [row[1].to_pydatetime().date() for row in df.index]
