@@ -6,7 +6,7 @@ from OrderGenerator import OrderGenerator
 from typing import List
 from pandas import Timestamp
 
-class Backtester:
+class OldBacktester:
     def __init__(self,
                  openingBalance,
                  startDate : date,
