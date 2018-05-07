@@ -1,16 +1,16 @@
 import sys
 from datetime import date
-from OldBacktester import OldBacktester
 from IbRepo import IbRepo
 from OrderGenerator import OrderGenerator
 from SectorRotationStrategy import SectorRotationStrategy
+from BacktraderWrapper import BacktraderWrapper
 
 if __name__ == '__main__':
 
     opt = sys.argv[1]
 
     if(opt == '1'):
-        OldBacktester(1000000, date(2003, 1, 2), date(2017, 12, 29)).Run()
+        BacktraderWrapper().RunBackTest()
     elif(opt == '2'):
         # todo: request contracts rather than build them
         app = IbRepo("127.0.0.1", 4002, 168)
