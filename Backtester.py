@@ -1,9 +1,10 @@
 from datetime import date
 from SectorRotationStrategy import SectorRotationStrategy
-from GoogleRepo import GoogleRepo
+from PandasRepo import PandasRepo
 from Asset import Asset
 from OrderGenerator import OrderGenerator
 from typing import List
+from pandas import Timestamp
 
 class Backtester:
     def __init__(self,
@@ -13,12 +14,16 @@ class Backtester:
         self._openingBalance = openingBalance
         self._startDate = startDate
         self._endDate = endDate
+        self._benchmarkSymbol = 'SPY'
 
     def Run(self):
-        repo = GoogleRepo()
-        repo.GetData("SPY")
-        prices = repo.ClosingPrices("SPY")
-        tradingDays = list(prices.keys())
+        # TODO: calculate sharpe ratio too as follows:
+        # df['daily_ret'] = df['Close'].pct_change();
+        # df['excess_daily_ret'] = df['daily_ret'] - 0.05/252
+        # sharpe = np.sqrt(252) * df['excess_daily_ret'].mean() / df['excess_daily_ret'].std()
+        repo = PandasRepo()
+        df = repo.GetData(self._benchmarkSymbol)
+        tradingDays = [row[1].to_pydatetime().date() for row in df.index]
         startIdx = tradingDays.index(self._startDate)
         idx = startIdx
 
@@ -45,6 +50,8 @@ class Backtester:
     def PortfolioValue(self, portfolio : List[Asset]):
         return sum(a.Value for a in portfolio)
 
-    def UpdatePrices(self, portfolio: List[Asset], repo : GoogleRepo, day : date):
+    def UpdatePrices(self, portfolio: List[Asset], repo : PandasRepo, day : date):
         for asset in portfolio:
-            asset._sharePrice = repo.ClosingPrices(asset._symbol)[day]
+            data = repo.GetData(asset._symbol)
+            price = data.loc[(asset._symbol, Timestamp(day))]['Close']
+            asset._sharePrice = price

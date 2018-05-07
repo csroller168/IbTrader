@@ -1,5 +1,6 @@
-from GoogleRepo import GoogleRepo
+from PandasRepo import PandasRepo
 from Asset import Asset
+from pandas import Timestamp
 
 class SectorRotationStrategy:
     def __init__(self, holdingsValue, tradingDay):
@@ -8,49 +9,40 @@ class SectorRotationStrategy:
         self._maxNumPositions = 6
         self._holdingsValue = holdingsValue
         self._tradingDay = tradingDay
-
-    def IsInMarket(self):
-        repo = GoogleRepo()
-        benchmarkPrices = repo.ClosingPrices(self._benchmarkSymbol)
-        return (self.Momentum(benchmarkPrices) > 1)
+        self._repo = PandasRepo()
 
     def GetTargetPortfolio(self):
-        repo = GoogleRepo()
-
         if(not self.IsInMarket()):
             return {}
 
-        prices = {}
+        closes = {}
         momentums = {}
         for symbol in self._symbols:
-            repo.GetData(symbol)
-            priceData = repo.ClosingPrices(symbol)
-            momentum = self.Momentum(priceData)
+            data = self._repo.GetData(symbol)
+            momentum = self.Momentum(data['Close'])
             if momentum > 1:
-                prices[symbol] = priceData
+                closes[symbol] = data
                 momentums[symbol] = momentum
 
         buyThreshold = sorted(momentums.values())[-min(self._maxNumPositions,len(momentums))]
         symbolsToBuy = {k: v for k,v in momentums.items() if v >= buyThreshold}
         assets = []
         for symbol in symbolsToBuy:
-            idx = len(prices[symbol])-1
-            if self._tradingDay in list(prices[symbol].keys()):
-                idx = list(prices[symbol].keys()).index(self._tradingDay)
-            sharePrice = list(prices[symbol].values())[idx]
+            df = closes[symbol]
+            sharePrice = df['Close'][-1]
+            if (symbol, self._tradingDay) in closes[symbol].index:
+                sharePrice = df.loc[(symbol, Timestamp(self._tradingDay))]['Close']
             numShares = int(self._holdingsValue / len(symbolsToBuy) / sharePrice)
             assets.append(Asset(symbol, sharePrice, numShares))
         return assets
 
-    def Momentum(self, prices):
-        idx = len(prices)-1
-        try:
-            idx = list(prices.keys()).index(self._tradingDay)
-        except:
-            pass
+    def Momentum(self, df):
+        sma50 = df.rolling(50).mean()[-1]
+        sma200 = df.rolling(200).mean()[-1]
+        return sma50/sma200
 
-        sma50Values = list(prices.values())[idx-50:idx]
-        sma50 = sum(sma50Values) / len(sma50Values)
-        sma200Values = list(prices.values())[idx-200:idx]
-        sma200 = sum(sma200Values) / len(sma200Values)
-        return sma50 / sma200
+    def IsInMarket(self):
+        close = self._repo.GetData(self._benchmarkSymbol)['Close']
+        smaSmall = close.rolling(50).mean()[-1]
+        smaLarge = close.rolling(200).mean()[-1]
+        return (smaSmall > smaLarge)

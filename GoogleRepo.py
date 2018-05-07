@@ -1,17 +1,27 @@
-import urllib.request
+###
+# todo: replace this repo with something other than google that will work
+# Separate app to get google data, or some other data source
+###
+
+
+
 import csv
 from datetime import datetime, timedelta
 from collections import OrderedDict
-
+import requests
+from os.path import dirname, abspath
 
 class GoogleRepo:
     def __init__(self):
         self._downloadUrlFormat = "https://finance.google.com/finance/historical?q={}&startdate=22-Feb-2002&output=csv"
-        self._dataFileFormat = "./data/{}.csv"
+        self._dataFileFormat = dirname(abspath(__file__)) + "/data/{}.csv"
 
     def GetData(self, symbol):
         url = self._downloadUrlFormat.format(symbol)
-        urllib.request.urlretrieve(url, self.DataFileName(symbol))
+        filename = self.DataFileName(symbol)
+        r = requests.get(url)
+        with open(filename, 'wb') as f:
+            f.write(r.content)
 
     def ClosingPrices(self, symbol):
         prices = {}
