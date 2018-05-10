@@ -10,7 +10,7 @@ if __name__ == '__main__':
     opt = sys.argv[1]
 
     if(opt == '1'):
-        BacktraderWrapper().RunBackTest()
+        BacktraderWrapper(startCash=100000).RunBackTest()
     elif(opt == '2'):
         # todo: request contracts rather than build them
         app = IbRepo("127.0.0.1", 4002, 168)

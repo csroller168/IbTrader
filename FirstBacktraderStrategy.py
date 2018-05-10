@@ -1,5 +1,4 @@
 import backtrader as bt
-from datetime import datetime
 
 class FirstBacktraderStrategy(bt.Strategy):
 
@@ -7,6 +6,7 @@ class FirstBacktraderStrategy(bt.Strategy):
         self.rsi = bt.indicators.RSI_SMA(self.data.close, period=21)
 
     def next(self):
+        # use self.datas to look at all lines
         if not self.position:
             if self.rsi < 30:
                 self.buy(size=100)

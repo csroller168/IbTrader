@@ -5,14 +5,23 @@ from datetime import datetime
 from FirstBacktraderStrategy import FirstBacktraderStrategy
 from PandasRepo import PandasRepo
 
+# TODO:
+# 1. Add multiple data lines
+# 2. impl sector rotation strategy
+
 class BacktraderWrapper:
-    def __init__(self):
-        pass
+    def __init__(self,
+                 startCash = 10000,
+                 #universe = ("IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"),
+                 universe=("IYF"),
+                 startDate = datetime(2016, 1, 1),
+                 endDate = datetime(2016, 12, 31)):
+        self._startCash = startCash
+        self._universe = universe
+        self._startDate = startDate
+        self._endDate = endDate
 
     def RunBackTest(self):
-        # Variable for our starting cash
-        startcash = 10000
-
         # Create an instance of cerebro
         cerebro = bt.Cerebro()
 
@@ -20,12 +29,13 @@ class BacktraderWrapper:
         cerebro.addstrategy(FirstBacktraderStrategy)
 
         # Add data feed
-        df = PandasRepo().GetData('IYF', datetime(2016, 1, 1), datetime(2017, 1, 10))
-        data = bt.feeds.PandasData(dataname=df)
-        cerebro.adddata(data)
+        for symbol in self._universe:
+            df = PandasRepo().GetData(symbol, self._startDate, self._endDate)
+            data = bt.feeds.PandasData(dataname=df)
+            cerebro.adddata(data)
 
         # Set our desired cash start
-        cerebro.broker.setcash(startcash)
+        cerebro.broker.setcash(self._startCash)
 
         # Set up pyfolio
         cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
