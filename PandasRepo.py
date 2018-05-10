@@ -7,29 +7,29 @@ import pandas_datareader.data as web
 class PandasRepo:
     def __init__(self):
         self._dataFileFormat = os.path.dirname(os.path.abspath(__file__)) + "/data/{}.dat"
-        self._dfEmpty = pd.DataFrame(columns=['Close', 'High', 'Low', 'Open', 'Volume'])
+        self._dfEmpty = pd.DataFrame(columns=['Symbol', 'Close', 'High', 'Low', 'Open', 'Volume'])
         self._localCache = {}
         pass
 
     def GetData(self, symbol:str, startDate: datetime, endDate: datetime):
-        dfCached = self.GetDataFromCache(symbol)
-        if not dfCached.empty:
-            return dfCached
+        df = self.GetDataFromCache(symbol)
+        reqStartDt = startDate
+        reqEndDt = endDate
 
-        dfNew = self.GetDataFromWeb(symbol, startDate, endDate)
-        self.CacheData(dfNew, symbol)
-        return dfNew
+        if (not df.empty):
+            cacheStartDt = df.index[0].to_pydatetime()
+            cacheEndDt = df.index[-1].to_pydatetime()
+            if(endDate >= cacheStartDt and endDate <= cacheEndDt):
+                reqEndDt = cacheStartDt
+            if (startDate >= cacheStartDt and startDate <= cacheEndDt):
+                reqStartDt = cacheEndDt
 
-        #dateToBeginPull = startDate
-        #if not dfCached.empty:
-        #    dateToBeginPull = dfCached.index[-1][1].to_pydatetime() + timedelta(days=1)
+        if (reqStartDt <= reqEndDt):
+            dfNew = self.GetDataFromWeb(symbol, reqStartDt, reqEndDt)
+            df = pd.concat([df,dfNew]).drop_duplicates().sort_index()
+            self.CacheData(df, symbol)
 
-        #dfNew = self.GetDataFromWeb(symbol, dateToBeginPull, endDate)
-        #df = dfNew
-        #if not dfCached.empty:
-        #    df = pd.concat([dfCached, dfNew])
-        #self.CacheData(df, symbol)
-        #return df
+        return df
 
     def GetDataFromCache(self, symbol:str):
         if symbol in self._localCache:
