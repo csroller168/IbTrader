@@ -6,14 +6,13 @@ from FirstBacktraderStrategy import FirstBacktraderStrategy
 from PandasRepo import PandasRepo
 
 # TODO:
-# 1. Add multiple data lines
-# 2. impl sector rotation strategy
+# impl sector rotation strategy
+# Add sharpe analysis
 
 class BacktraderWrapper:
     def __init__(self,
                  startCash = 10000,
-                 #universe = ("IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"),
-                 universe=("IYF"),
+                 universe = ["IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"],
                  startDate = datetime(2016, 1, 1),
                  endDate = datetime(2016, 12, 31)):
         self._startCash = startCash
@@ -32,7 +31,7 @@ class BacktraderWrapper:
         for symbol in self._universe:
             df = PandasRepo().GetData(symbol, self._startDate, self._endDate)
             data = bt.feeds.PandasData(dataname=df)
-            cerebro.adddata(data)
+            cerebro.adddata(data, name=symbol)
 
         # Set our desired cash start
         cerebro.broker.setcash(self._startCash)
