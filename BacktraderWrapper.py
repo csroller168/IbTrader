@@ -6,8 +6,10 @@ from FirstBacktraderStrategy import FirstBacktraderStrategy
 from PandasRepo import PandasRepo
 
 # TODO:
+# make PandasRepo return only requested date range
 # impl sector rotation strategy
-# Add sharpe analysis
+# Delete dead classes
+# Organize into namespaces
 
 class BacktraderWrapper:
     def __init__(self,

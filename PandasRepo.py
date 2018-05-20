@@ -29,7 +29,7 @@ class PandasRepo:
             df = pd.concat([df,dfNew]).drop_duplicates().sort_index()
             self.CacheData(df, symbol)
 
-        return df
+        return df.loc[startDate:endDate]
 
     def GetDataFromCache(self, symbol:str):
         if symbol in self._localCache:
