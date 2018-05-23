@@ -2,11 +2,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import backtrader as bt
 from datetime import datetime
-from FirstBacktraderStrategy import FirstBacktraderStrategy
+from SectorRotationStrategy import SectorRotationStrategy
 from PandasRepo import PandasRepo
 
 # TODO:
-# make PandasRepo return only requested date range
 # impl sector rotation strategy
 # Delete dead classes
 # Organize into namespaces
@@ -16,7 +15,7 @@ class BacktraderWrapper:
                  startCash = 10000,
                  universe = ["IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"],
                  startDate = datetime(2016, 1, 1),
-                 endDate = datetime(2016, 12, 31)):
+                 endDate = datetime(2017, 12, 31)):
         self._startCash = startCash
         self._universe = universe
         self._startDate = startDate
@@ -27,7 +26,7 @@ class BacktraderWrapper:
         cerebro = bt.Cerebro()
 
         # Add our strategy
-        cerebro.addstrategy(FirstBacktraderStrategy)
+        cerebro.addstrategy(SectorRotationStrategy)
 
         # Add data feed
         for symbol in self._universe:

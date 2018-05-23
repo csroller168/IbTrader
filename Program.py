@@ -2,7 +2,7 @@ import sys
 from datetime import date
 from IbRepo import IbRepo
 from OrderGenerator import OrderGenerator
-from SectorRotationStrategy import SectorRotationStrategy
+from OldSectorRotationStrategy import OldSectorRotationStrategy
 from BacktraderWrapper import BacktraderWrapper
 
 if __name__ == '__main__':
@@ -18,7 +18,7 @@ if __name__ == '__main__':
         cashValue = app.get_cash_value()
         value = float(sum(a.Value for a in currentPortfolio))
         value += cashValue
-        targetPortfolio = SectorRotationStrategy(value, date.today()).GetTargetPortfolio()
+        targetPortfolio = OldSectorRotationStrategy(value, date.today()).GetTargetPortfolio()
         orders = OrderGenerator().MakeOrders(currentPortfolio, targetPortfolio)
         for order in orders:
             if order._asset._numShares > 0:

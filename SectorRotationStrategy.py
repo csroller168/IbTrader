@@ -1,48 +1,30 @@
-from PandasRepo import PandasRepo
-from Asset import Asset
-from pandas import Timestamp
+import backtrader as bt
+import numpy as np
 
-class SectorRotationStrategy:
-    def __init__(self, holdingsValue, tradingDay):
-        self._symbols = ("IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU")
-        self._benchmarkSymbol = "SPY"
-        self._maxNumPositions = 6
-        self._holdingsValue = holdingsValue
-        self._tradingDay = tradingDay
-        self._repo = PandasRepo()
+class SectorRotationStrategy(bt.Strategy):
 
-    def GetTargetPortfolio(self):
-        if(not self.IsInMarket()):
-            return {}
+    def __init__(self,
+                 fastSmaDays = 40,
+                 slowSmaDays = 200):
+        self.maxNumPositions = 6
+        self.momentum = dict()
+        for symbol in self.getdatanames():
+            data = self.getdatabyname(symbol)
+            smaFast = bt.ind.SMA(data, period=fastSmaDays)
+            smaSlow = bt.ind.SMA(data, period=slowSmaDays)
+            self.momentum[symbol] = smaFast/smaSlow
 
-        closes = {}
-        momentums = {}
-        for symbol in self._symbols:
-            data = self._repo.GetData(symbol)
-            momentum = self.Momentum(data['Close'])
-            if momentum > 1:
-                closes[symbol] = data
-                momentums[symbol] = momentum
+    def next(self):
+        momentums = dict()
+        for symbol in self.getdatanames():
+            momentums[symbol] = self.momentum[symbol][0]
 
-        buyThreshold = sorted(momentums.values())[-min(self._maxNumPositions,len(momentums))]
-        symbolsToBuy = {k: v for k,v in momentums.items() if v >= buyThreshold}
-        assets = []
-        for symbol in symbolsToBuy:
-            df = closes[symbol]
-            sharePrice = df['Close'][-1]
-            if (symbol, self._tradingDay) in closes[symbol].index:
-                sharePrice = df.loc[(symbol, Timestamp(self._tradingDay))]['Close']
-            numShares = int(self._holdingsValue / len(symbolsToBuy) / sharePrice)
-            assets.append(Asset(symbol, sharePrice, numShares))
-        return assets
+        buyThreshold = sorted(momentums.values())[-min(self.maxNumPositions, len(momentums))]
+        symbolsToBuy = {k: v for k, v in momentums.items() if v >= buyThreshold}
+        pct = 1.0 / len(symbolsToBuy)
 
-    def Momentum(self, df):
-        sma50 = df.rolling(50).mean()[-1]
-        sma200 = df.rolling(200).mean()[-1]
-        return sma50/sma200
-
-    def IsInMarket(self):
-        close = self._repo.GetData(self._benchmarkSymbol)['Close']
-        smaSmall = close.rolling(50).mean()[-1]
-        smaLarge = close.rolling(200).mean()[-1]
-        return (smaSmall > smaLarge)
+        for symbol in self.getdatanames():
+            if symbol in symbolsToBuy:
+                self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
+            else:
+                self.order_target_percent(data=self.getdatabyname(symbol), target=0)

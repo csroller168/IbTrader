@@ -1,5 +1,5 @@
 from datetime import date
-from SectorRotationStrategy import SectorRotationStrategy
+from OldSectorRotationStrategy import OldSectorRotationStrategy
 from PandasRepo import PandasRepo
 from Asset import Asset
 from OrderGenerator import OrderGenerator
@@ -27,7 +27,7 @@ class OldBacktester:
         startIdx = tradingDays.index(self._startDate)
         idx = startIdx
 
-        currentPortfolio = SectorRotationStrategy(self._openingBalance, tradingDays[idx]).GetTargetPortfolio()
+        currentPortfolio = OldSectorRotationStrategy(self._openingBalance, tradingDays[idx]).GetTargetPortfolio()
         portfolioValue = self.PortfolioValue(currentPortfolio)
         cash = self._openingBalance - portfolioValue
 
@@ -41,7 +41,7 @@ class OldBacktester:
 
             # Rebalance if due
             if idx % 7 == 0:
-                targetPortfolio = SectorRotationStrategy(totalValue, tradingDays[idx]).GetTargetPortfolio()
+                targetPortfolio = OldSectorRotationStrategy(totalValue, tradingDays[idx]).GetTargetPortfolio()
                 orders = OrderGenerator().MakeOrders(currentPortfolio, targetPortfolio)
                 cash += sum(o.Proceeds() for o in orders)
                 currentPortfolio = targetPortfolio
