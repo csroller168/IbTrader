@@ -2,8 +2,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import backtrader as bt
 from datetime import datetime
-from SectorRotationStrategy import SectorRotationStrategy
-import ibtrader.PandasRepo as PandasRepo
+from ibtrader.SectorRotationStrategy import SectorRotationStrategy
+import ibtrader.PandasRepo as datarepo
 
 # TODO:
 # Integrate into IB
@@ -35,7 +35,7 @@ class BacktraderWrapper:
 
         # Add data feed
         for symbol in self._universe:
-            df = PandasRepo().GetData(symbol, self._startDate, self._endDate)
+            df = datarepo().GetData(symbol, self._startDate, self._endDate)
             data = bt.feeds.PandasData(dataname=df)
             cerebro.adddata(data, name=symbol)
 

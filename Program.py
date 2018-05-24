@@ -1,5 +1,5 @@
 import sys
-from BacktraderWrapper import BacktraderWrapper
+from ibtrader.BacktraderWrapper import BacktraderWrapper
 
 if __name__ == '__main__':
 

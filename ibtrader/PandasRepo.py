@@ -4,6 +4,7 @@ import os.path
 import pandas as pd
 import pandas_datareader.data as web
 
+
 class PandasRepo:
     def __init__(self):
         self._dataFileFormat = os.path.dirname(os.path.abspath(__file__)) + "/../data/{}.dat"
