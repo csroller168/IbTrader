@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import os.path
 import pandas as pd
@@ -6,7 +6,7 @@ import pandas_datareader.data as web
 
 class PandasRepo:
     def __init__(self):
-        self._dataFileFormat = os.path.dirname(os.path.abspath(__file__)) + "/data/{}.dat"
+        self._dataFileFormat = os.path.dirname(os.path.abspath(__file__)) + "/../data/{}.dat"
         self._dfEmpty = pd.DataFrame(columns=['Symbol', 'Close', 'High', 'Low', 'Open', 'Volume'])
         self._localCache = {}
         pass

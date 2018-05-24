@@ -3,21 +3,24 @@ from __future__ import (absolute_import, division, print_function,
 import backtrader as bt
 from datetime import datetime
 from SectorRotationStrategy import SectorRotationStrategy
-from PandasRepo import PandasRepo
+import ibtrader.PandasRepo as PandasRepo
 
 # TODO:
 # Integrate into IB
 # Delete dead classes
 # Organize into namespaces
+# clean up using pep8 style guide
+    # class names with camel case, variable and module names lowercase with underscores
 # update strategy
     # add market pullout indicator
+
 
 class BacktraderWrapper:
     def __init__(self,
                  startCash = 10000,
                  universe = ["IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"],
                  startDate = datetime(2016, 1, 1),
-                 endDate = datetime(2017, 12, 31)):
+                 endDate = datetime(2017, 12, 29)):
         self._startCash = startCash
         self._universe = universe
         self._startDate = startDate
