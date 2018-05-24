@@ -6,9 +6,11 @@ from SectorRotationStrategy import SectorRotationStrategy
 from PandasRepo import PandasRepo
 
 # TODO:
-# impl sector rotation strategy
+# Integrate into IB
 # Delete dead classes
 # Organize into namespaces
+# update strategy
+    # add market pullout indicator
 
 class BacktraderWrapper:
     def __init__(self,
