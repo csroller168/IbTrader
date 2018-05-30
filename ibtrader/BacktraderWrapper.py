@@ -9,8 +9,7 @@ import ibtrader.PandasRepo as datarepo
 # Integrate into IB
 # Delete dead classes
 # Organize into namespaces
-# clean up using pep8 style guide
-    # class names with camel case, variable and module names lowercase with underscores
+# clean up weak pep8 warnings
 # update strategy
     # add market pullout indicator
 
@@ -27,24 +26,22 @@ class BacktraderWrapper:
         self._endDate = endDate
 
     def RunBackTest(self):
-        # Create an instance of cerebro
         cerebro = bt.Cerebro()
-
-        # Add our strategy
         cerebro.addstrategy(SectorRotationStrategy)
-
-        # Add data feed
         for symbol in self._universe:
             df = datarepo().GetData(symbol, self._startDate, self._endDate)
             data = bt.feeds.PandasData(dataname=df)
             cerebro.adddata(data, name=symbol)
-
-        # Set our desired cash start
         cerebro.broker.setcash(self._startCash)
-
-        # Set up pyfolio
         cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
-
-        # Run over everything
-        results = cerebro.run()
+        cerebro.run()
         print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+    def LiveTrade(self):
+        cerebro = bt.Cerebro(stdstats=False)
+        store = bt.stores.IBStore(host='127.0.0.1', port=4002, clientId=168)
+        data = store.getdata(dataname='TWTR', timeframe=bt.TimeFrame.Ticks)
+        cerebro.resampledata(data, timeframe=bt.TimeFrame.Days, compression=1)
+        cerebro.addstrategy(SectorRotationStrategy)
+        cerebro.run()
+

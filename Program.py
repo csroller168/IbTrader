@@ -8,8 +8,8 @@ if __name__ == '__main__':
     if(opt == '1'):
         BacktraderWrapper(startCash=100000).RunBackTest()
     elif(opt == '2'):
-        pass
-        # todo: request contracts rather than build them
+        BacktraderWrapper().LiveTrade()
+
         # app = IbRepo("127.0.0.1", 4002, 168)
         # currentPortfolio = app.get_current_portfolio()
         # cashValue = app.get_cash_value()
