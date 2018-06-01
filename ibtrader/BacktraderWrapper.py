@@ -8,8 +8,8 @@ import ibtrader.PandasRepo as datarepo
 # TODO:
 # Integrate into IB
 # Delete dead classes
-# Organize into namespaces
 # clean up weak pep8 warnings
+# Get better notebook analysis
 # update strategy
     # add market pullout indicator
 
@@ -40,8 +40,11 @@ class BacktraderWrapper:
     def LiveTrade(self):
         cerebro = bt.Cerebro(stdstats=False)
         store = bt.stores.IBStore(host='127.0.0.1', port=4002, clientId=168)
-        data = store.getdata(dataname='TWTR', timeframe=bt.TimeFrame.Ticks)
-        cerebro.resampledata(data, timeframe=bt.TimeFrame.Days, compression=1)
+        for symbol in self._universe:
+            data = store.getdata(dataname=symbol, timeframe=bt.TimeFrame.Ticks)
+            cerebro.resampledata(data, timeframe=bt.TimeFrame.Seconds, compression=10)
+
+        cerebro.broker = store.getbroker()
         cerebro.addstrategy(SectorRotationStrategy)
         cerebro.run()
 

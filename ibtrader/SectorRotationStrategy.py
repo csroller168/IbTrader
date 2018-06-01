@@ -28,8 +28,16 @@ class SectorRotationStrategy(bt.Strategy):
         print(','.join(txt))
 
     def notify_data(self, data, status, *args, **kwargs):
+        print('*' * 5, 'DATA NOTIF:', data._getstatusname(status), *args)
         if status == data.LIVE:
-            print('got here')
+            self.data_live = True
+
+    def notify_order(self, order):
+        if order.status == order.Completed:
+            buysell = 'BUY ' if order.isbuy() else 'SELL'
+            txt = '{} {}@{}'.format(buysell, order.executed.size,
+                                    order.executed.price)
+            print(txt)
 
     def next(self):
         momentums = dict()
@@ -40,8 +48,13 @@ class SectorRotationStrategy(bt.Strategy):
         symbolsToBuy = {k: v for k, v in momentums.items() if v >= buyThreshold}
         pct = 1.0 / len(symbolsToBuy)
 
+        # this works with direct buy order and 2 equities added directly
+        # ... it did take a while for orders to execute, and a lot came in rapidly when they did
+        #
+
         for symbol in self.getdatanames():
             if symbol in symbolsToBuy:
-                self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
+                #self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
+                self.buy(data=self.getdatabyname(symbol), size=1)
             else:
                 self.order_target_percent(data=self.getdatabyname(symbol), target=0)
