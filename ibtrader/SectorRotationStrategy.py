@@ -1,17 +1,17 @@
 import backtrader as bt
 
+
 class SectorRotationStrategy(bt.Strategy):
 
-    def __init__(self,
-                 fastSmaDays = 40,
-                 slowSmaDays = 200):
+    def __init__(self, fastSmaDays=40, slowSmaDays=200, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.maxNumPositions = 6
         self.momentum = dict()
         for symbol in self.getdatanames():
             data = self.getdatabyname(symbol)
             smaFast = bt.ind.SMA(data, period=fastSmaDays)
             smaSlow = bt.ind.SMA(data, period=slowSmaDays)
-            self.momentum[symbol] = smaFast/smaSlow
+            self.momentum[symbol] = smaFast / smaSlow
 
     def logdata(self):
         txt = []
@@ -48,13 +48,12 @@ class SectorRotationStrategy(bt.Strategy):
         symbolsToBuy = {k: v for k, v in momentums.items() if v >= buyThreshold}
         pct = 1.0 / len(symbolsToBuy)
 
-        # this works with direct buy order and 2 equities added directly
-        # ... it did take a while for orders to execute, and a lot came in rapidly when they did
-        #
-
         for symbol in self.getdatanames():
             if symbol in symbolsToBuy:
-                #self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
-                self.buy(data=self.getdatabyname(symbol), size=1)
+                self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
+                # self.buy(data=self.getdatabyname(symbol), size=1)
             else:
                 self.order_target_percent(data=self.getdatabyname(symbol), target=0)
+
+        # Rebalance once, then stop
+        # exit()

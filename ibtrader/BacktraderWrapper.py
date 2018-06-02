@@ -5,27 +5,30 @@ from datetime import datetime
 from ibtrader.SectorRotationStrategy import SectorRotationStrategy
 import ibtrader.PandasRepo as datarepo
 
+
 # TODO:
-# Integrate into IB
-# Delete dead classes
 # clean up weak pep8 warnings
+# Integrate into IB
+# try to get order_target with pct working
+# first, sell anything that doesn't belong in portfolio
+# replace exit() in strategy with a better way to rebalance once per day
 # Get better notebook analysis
 # update strategy
-    # add market pullout indicator
+# add market pullout indicator
 
 
 class BacktraderWrapper:
     def __init__(self,
-                 startCash = 10000,
-                 universe = ["IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"],
-                 startDate = datetime(2016, 1, 1),
-                 endDate = datetime(2017, 12, 29)):
+                 startCash=10000,
+                 universe=["IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"],
+                 startDate=datetime(2016, 1, 1),
+                 endDate=datetime(2017, 12, 29)):
         self._startCash = startCash
         self._universe = universe
         self._startDate = startDate
         self._endDate = endDate
 
-    def RunBackTest(self):
+    def run_backtest(self):
         cerebro = bt.Cerebro()
         cerebro.addstrategy(SectorRotationStrategy)
         for symbol in self._universe:
@@ -37,7 +40,7 @@ class BacktraderWrapper:
         cerebro.run()
         print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-    def LiveTrade(self):
+    def live_trade(self):
         cerebro = bt.Cerebro(stdstats=False)
         store = bt.stores.IBStore(host='127.0.0.1', port=4002, clientId=168)
         for symbol in self._universe:
@@ -47,4 +50,3 @@ class BacktraderWrapper:
         cerebro.broker = store.getbroker()
         cerebro.addstrategy(SectorRotationStrategy)
         cerebro.run()
-
