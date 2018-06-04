@@ -4,3 +4,4 @@ venv
 data
 log
 __pycache__
+notebooks/.ipynb_checkpoints
