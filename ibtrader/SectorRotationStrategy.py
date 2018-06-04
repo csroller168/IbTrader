@@ -57,4 +57,4 @@ class SectorRotationStrategy(bt.Strategy):
                 self.order_target_percent(data=self.getdatabyname(symbol), target=0)
 
         # Rebalance once, then stop
-        # exit()
+        exit()

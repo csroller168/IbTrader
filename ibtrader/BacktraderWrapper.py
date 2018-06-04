@@ -8,10 +8,10 @@ import ibtrader.PandasRepo as datarepo
 
 # TODO:
 # Integrate into IB
-    # try to get order_target with pct working
-        # Sizer?
-    # first, sell anything that doesn't belong in portfolio
-    # replace exit() in strategy with a better way to rebalance once per day
+#   try to get order_target with pct working
+#       Sizer?
+#   first, sell anything that doesn't belong in portfolio
+#   replace exit() in strategy with a better way to rebalance once per day
 # add market pullout indicator to strategy
 # Get better notebook analysis
 
