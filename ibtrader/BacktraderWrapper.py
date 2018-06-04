@@ -7,14 +7,13 @@ import ibtrader.PandasRepo as datarepo
 
 
 # TODO:
-# clean up weak pep8 warnings
 # Integrate into IB
-# try to get order_target with pct working
-# first, sell anything that doesn't belong in portfolio
-# replace exit() in strategy with a better way to rebalance once per day
+    # try to get order_target with pct working
+        # Sizer?
+    # first, sell anything that doesn't belong in portfolio
+    # replace exit() in strategy with a better way to rebalance once per day
+# add market pullout indicator to strategy
 # Get better notebook analysis
-# update strategy
-# add market pullout indicator
 
 
 class BacktraderWrapper:
@@ -36,6 +35,9 @@ class BacktraderWrapper:
             data = bt.feeds.PandasData(dataname=df)
             cerebro.adddata(data, name=symbol)
         cerebro.broker.setcash(self._startCash)
+        cerebro.broker.setcommission(commission=1.0,
+                                     commtype=bt.CommInfoBase.COMM_FIXED,
+                                     stocklike=True)
         cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
         cerebro.run()
         print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())

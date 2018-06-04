@@ -28,9 +28,10 @@ class SectorRotationStrategy(bt.Strategy):
         print(','.join(txt))
 
     def notify_data(self, data, status, *args, **kwargs):
-        print('*' * 5, 'DATA NOTIF:', data._getstatusname(status), *args)
-        if status == data.LIVE:
-            self.data_live = True
+        pass
+        #print('*' * 5, 'DATA NOTIF:', data._getstatusname(status), *args)
+        #if status == data.LIVE:
+        #    self.data_live = True
 
     def notify_order(self, order):
         if order.status == order.Completed:
