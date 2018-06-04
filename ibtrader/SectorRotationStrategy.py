@@ -52,9 +52,11 @@ class SectorRotationStrategy(bt.Strategy):
         for symbol in self.getdatanames():
             if symbol in symbolsToBuy:
                 self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
+                print('Buy ' + pct + '% ' + symbol)
                 # self.buy(data=self.getdatabyname(symbol), size=1)
             else:
                 self.order_target_percent(data=self.getdatabyname(symbol), target=0)
+                print('Sell ' + symbol)
 
         # Rebalance once, then stop
         exit()
