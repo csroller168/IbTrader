@@ -8,10 +8,11 @@ import ibtrader.PandasRepo as datarepo
 
 # TODO:
 # Integrate into IB
+#   Use a Timers to run once per day - then see if that fixes the order_target_pct
+#       It worked, but the pcts were jacked up
 #   try to get order_target with pct working
 #       Sizer?
 #   first, sell anything that doesn't belong in portfolio
-#   replace exit() in strategy with a better way to rebalance once per day
 # add market pullout indicator to strategy
 # Get better notebook analysis
 
@@ -29,6 +30,8 @@ class BacktraderWrapper:
 
     def run_backtest(self):
         cerebro = bt.Cerebro()
+        cerebro.broker = bt.brokers.BackBroker()
+
         cerebro.addstrategy(SectorRotationStrategy)
         for symbol in self._universe:
             df = datarepo().GetData(symbol, self._startDate, self._endDate)
