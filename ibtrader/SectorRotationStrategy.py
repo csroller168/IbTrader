@@ -37,7 +37,12 @@ class SectorRotationStrategy(bt.Strategy):
         buyThreshold = sorted(momentums.values())[-min(self.maxNumPositions, len(momentums))]
         symbolsToBuy = {k: v for k, v in momentums.items() if v >= buyThreshold}
         pct = 1.0 / len(symbolsToBuy) if len(symbolsToBuy) > 0 else 0.0
+        allSymbols = self.getdatanames()
 
-        for symbol in self.getdatanames():
-            tgtPct = pct if symbol in symbolsToBuy else 0
-            self.order_target_percent(data=self.getdatabyname(symbol), target=tgtPct)
+        # Sell things first, then buy
+        for symbol in allSymbols:
+            if symbol not in symbolsToBuy:
+                self.order_target_percent(data=self.getdatabyname(symbol), target=0)
+
+        for symbol in symbolsToBuy:
+            self.order_target_percent(data=self.getdatabyname(symbol), target=pct)

@@ -7,10 +7,7 @@ import ibtrader.PandasRepo as datarepo
 
 
 # TODO:
-# test integration into IB
-#   first, sell anything that doesn't belong in portfolio
-# in backtester, trade at open price, not close price
-# set crontab to start app early
+# finish integration into IB
 #
 # next branch
 #   add market pullout indicator to strategy
