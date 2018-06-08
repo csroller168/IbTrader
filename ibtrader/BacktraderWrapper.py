@@ -8,6 +8,7 @@ import ibtrader.PandasRepo as datarepo
 
 # TODO:
 # finish integration into IB
+# fix issue where momentums not getting set in live trading
 #
 # next branch
 #   add market pullout indicator to strategy

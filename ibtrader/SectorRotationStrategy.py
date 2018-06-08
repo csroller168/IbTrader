@@ -32,7 +32,7 @@ class SectorRotationStrategy(bt.Strategy):
     def notify_timer(self, timer, when, *args, **kwargs):
         momentums = dict()
         for symbol in self.getdatanames():
-            momentums[symbol] = self.momentum[symbol][0]
+            momentums[symbol] = self.momentum[symbol][0] if len(self.momentum[symbol]) > 0 else 0
 
         buyThreshold = sorted(momentums.values())[-min(self.maxNumPositions, len(momentums))]
         symbolsToBuy = {k: v for k, v in momentums.items() if v >= buyThreshold}
