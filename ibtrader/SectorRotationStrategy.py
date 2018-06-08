@@ -39,9 +39,5 @@ class SectorRotationStrategy(bt.Strategy):
         pct = 1.0 / len(symbolsToBuy) if len(symbolsToBuy) > 0 else 0.0
 
         for symbol in self.getdatanames():
-            if symbol in symbolsToBuy:
-                self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
-                print('{} Buy {}% {}'.format(when, pct, symbol))
-            else:
-                self.order_target_percent(data=self.getdatabyname(symbol), target=0)
-                print('{} Sell 100% {}'.format(when, symbol))
+            tgtPct = pct if symbol in symbolsToBuy else 0
+            self.order_target_percent(data=self.getdatabyname(symbol), target=tgtPct)

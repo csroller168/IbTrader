@@ -47,7 +47,7 @@ class PandasRepo:
         try:
             df = web.DataReader(symbol, 'morningstar', startDate, endDate)
             df.dropna()
-            df['Close'].ffill()
+            df['Open'].ffill()
             df = df.reset_index(level=[0])
         except:
             pass
