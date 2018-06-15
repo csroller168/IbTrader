@@ -1,14 +1,14 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import backtrader as bt
-from datetime import datetime
+from datetime import datetime, timedelta
 from ibtrader.SectorRotationStrategy import SectorRotationStrategy
 import ibtrader.PandasRepo as datarepo
 
 
 # TODO:
 # finish integration into IB
-# fix issue where momentums not getting set in live trading
+#   for some reason it's shorting the stuff to sell
 #
 # next branch
 #   add market pullout indicator to strategy
@@ -20,7 +20,7 @@ class BacktraderWrapper:
     def __init__(self,
                  startCash=10000,
                  universe=["IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"],
-                 startDate=datetime(2016, 1, 1),
+                 startDate=datetime(2017, 1, 3),
                  endDate=datetime(2017, 12, 29)):
         self._startCash = startCash
         self._universe = universe
@@ -40,7 +40,6 @@ class BacktraderWrapper:
         cerebro.broker.setcommission(commission=1.0,
                                      commtype=bt.CommInfoBase.COMM_FIXED,
                                      stocklike=True)
-        cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
         cerebro.run()
         print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
@@ -49,8 +48,7 @@ class BacktraderWrapper:
         store = bt.stores.IBStore(host='127.0.0.1', port=4002, clientId=168)
         for symbol in self._universe:
             data = store.getdata(dataname=symbol, timeframe=bt.TimeFrame.Ticks)
-            cerebro.resampledata(data, timeframe=bt.TimeFrame.Seconds, compression=10)
-
+            cerebro.resampledata(data, timeframe=bt.TimeFrame.Days, compression=1)
         cerebro.broker = store.getbroker()
         cerebro.addstrategy(SectorRotationStrategy)
-        cerebro.run()
+        cerebro.run(runonce=True)

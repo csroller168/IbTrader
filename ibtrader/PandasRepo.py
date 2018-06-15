@@ -27,7 +27,11 @@ class PandasRepo:
 
         if (reqStartDt <= reqEndDt):
             dfNew = self.GetDataFromWeb(symbol, reqStartDt, reqEndDt)
-            df = pd.concat([df,dfNew]).drop_duplicates().sort_index()
+            df = pd.concat([df,dfNew])\
+                .drop_duplicates()\
+                .sort_index()\
+                .resample(rule='D')\
+                .ffill()
             self.CacheData(df, symbol)
 
         return df.loc[startDate:endDate]
@@ -47,7 +51,6 @@ class PandasRepo:
         try:
             df = web.DataReader(symbol, 'morningstar', startDate, endDate)
             df.dropna()
-            df['Open'].ffill()
             df = df.reset_index(level=[0])
         except:
             pass

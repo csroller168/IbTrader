@@ -1,23 +1,38 @@
 import backtrader as bt
-import datetime
+from datetime import timedelta
+import ibtrader.PandasRepo as datarepo
+import numpy as np
 
 class SectorRotationStrategy(bt.Strategy):
 
-    def __init__(self, fastSmaDays=40, slowSmaDays=200):
+    def __init__(
+            self,
+            fastSmaDays=40,
+            slowSmaDays=200,
+            universe=["IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"]):
         self.add_timer(
             when=bt.timer.SESSION_START,
-            offset=datetime.timedelta(),
+            offset=timedelta(),
             repeat=False,
-            weekdays=[1],
+            weekdays=[1,2,3,4,5],
             weekcarry=True
         )
         self.maxNumPositions = 6
-        self.momentum = dict()
-        for symbol in self.getdatanames():
-            data = self.getdatabyname(symbol)
-            smaFast = bt.ind.SMA(data, period=fastSmaDays)
-            smaSlow = bt.ind.SMA(data, period=slowSmaDays)
-            self.momentum[symbol] = smaFast / smaSlow
+        self.universe = universe
+        self.fastSmaDays = fastSmaDays
+        self.slowSmaDays = slowSmaDays
+        self.datarepo = datarepo()
+
+    def notify_data(self, data, status, *args, **kwargs):
+        print("notify_data: {}".format(data._getstatusname(status)))
+        if status == data.LIVE:
+            print("live!")
+
+    def notify_store(self, msg, *args, **kwargs):
+        print("notify_store: {}".format(msg))
+
+    def notify_cashvalue(self, cash, value):
+        pass
 
     def notify_order(self, order):
         if order.status == order.Completed:
@@ -31,18 +46,25 @@ class SectorRotationStrategy(bt.Strategy):
 
     def notify_timer(self, timer, when, *args, **kwargs):
         momentums = dict()
-        for symbol in self.getdatanames():
-            momentums[symbol] = self.momentum[symbol][0] if len(self.momentum[symbol]) > 0 else 0
+        repoEndDate = when - timedelta(days=1)
+        repoStartDate = repoEndDate - timedelta(days=self.slowSmaDays+1)
+        for symbol in self.universe:
+            closes = self.datarepo.GetData(symbol, repoStartDate, repoEndDate)['Close'].values
+            smaFast = np.mean(closes[-self.fastSmaDays])
+            smaSlow = np.mean(closes[-self.slowSmaDays])
+            momentums[symbol] = smaFast / smaSlow
 
         buyThreshold = sorted(momentums.values())[-min(self.maxNumPositions, len(momentums))]
         symbolsToBuy = {k: v for k, v in momentums.items() if v >= buyThreshold}
         pct = 1.0 / len(symbolsToBuy) if len(symbolsToBuy) > 0 else 0.0
-        allSymbols = self.getdatanames()
 
         # Sell things first, then buy
-        for symbol in allSymbols:
+        for symbol in self.universe:
             if symbol not in symbolsToBuy:
                 self.order_target_percent(data=self.getdatabyname(symbol), target=0)
 
         for symbol in symbolsToBuy:
             self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
+
+    def next(self):
+        pass
