@@ -24,7 +24,7 @@ class SectorRotationStrategy(bt.Strategy):
         self.datarepo = datarepo()
 
     def notify_data(self, data, status, *args, **kwargs):
-        print("notify_data: {}".format(data._getstatusname(status)))
+        print("notify_data: {} {}".format(data.contract.m_localSymbol, data._getstatusname(status)))
         if status == data.LIVE:
             print("live!")
 
@@ -32,14 +32,14 @@ class SectorRotationStrategy(bt.Strategy):
         print("notify_store: {}".format(msg))
 
     def notify_cashvalue(self, cash, value):
-        pass
+        print("notify_cashvalue: {}, {}".format(cash, value))
 
     def notify_order(self, order):
         if order.status == order.Completed:
             buysell = 'BUY ' if order.isbuy() else 'SELL'
             txt = '{},{},{},{}@{}'.format(self.data.datetime.date(),
                                           buysell,
-                                          self.data._dataname['Symbol'][0],
+                                          order.data._name,
                                           order.executed.size,
                                           order.executed.price)
             print(txt)
@@ -60,7 +60,7 @@ class SectorRotationStrategy(bt.Strategy):
 
         # Sell things first, then buy
         for symbol in self.universe:
-            if symbol not in symbolsToBuy:
+            if symbol not in symbolsToBuy.keys():
                 self.order_target_percent(data=self.getdatabyname(symbol), target=0)
 
         for symbol in symbolsToBuy:
