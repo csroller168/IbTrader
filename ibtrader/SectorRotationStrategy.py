@@ -1,7 +1,8 @@
 import backtrader as bt
-from datetime import timedelta
+from datetime import timedelta, datetime
 import ibtrader.PandasRepo as datarepo
 import numpy as np
+
 
 class SectorRotationStrategy(bt.Strategy):
 
@@ -11,22 +12,29 @@ class SectorRotationStrategy(bt.Strategy):
             slowSmaDays=200,
             universe=["IYM", "IYC", "IYK", "IYE", "IYF", "IYH", "IYR", "IYW", "IDU"]):
         self.add_timer(
-            when=bt.timer.SESSION_START,
-            offset=timedelta(),
-            repeat=False,
-            weekdays=[1,2,3,4,5],
-            weekcarry=True
+         when=bt.timer.SESSION_START,
+         offset=timedelta(),
+         repeat=False,
+         weekdays=[1],
+         weekcarry=True
         )
         self.maxNumPositions = 6
         self.universe = universe
         self.fastSmaDays = fastSmaDays
         self.slowSmaDays = slowSmaDays
         self.datarepo = datarepo()
+        self.isTimerNotified = False
+        self.isDataLive = False
+        self.isLiveTrading = False
 
     def notify_data(self, data, status, *args, **kwargs):
         print("notify_data: {}".format(data._getstatusname(status)))
+        print ("symbol: " + data.tradecontract.m_symbol)
+        self.isLiveTrading = True
         if status == data.LIVE:
-            print("live!")
+            print("*** LIVE ***")
+            self.isDataLive = True
+            self.execute_trades_if_ready()
 
     def notify_store(self, msg, *args, **kwargs):
         print("notify_store: {}".format(msg))
@@ -45,26 +53,44 @@ class SectorRotationStrategy(bt.Strategy):
             print(txt)
 
     def notify_timer(self, timer, when, *args, **kwargs):
+        print("*** TIMER NOTIFIED ***")
+        self.isTimerNotified = True
+        self.execute_trades_if_ready()
+
+    # def next(self):
+    #     print("*** NEXT CALLED ***")
+
+    def execute_trades_if_ready(self):
+        if not self.isLiveTrading:
+            self.execute_trades()
+
+        if self.isTimerNotified and self.isDataLive:
+            self.isTimerNotified = False
+            self.execute_trades()
+
+    def execute_trades(self):
         momentums = dict()
-        repoEndDate = when - timedelta(days=1)
-        repoStartDate = repoEndDate - timedelta(days=self.slowSmaDays+1)
+        prices = dict()
+        possibledate = datetime.fromtimestamp(self.data.datetime[0])
+        repoEndDate = possibledate - timedelta(days=1)
+        repoStartDate = repoEndDate - timedelta(days=self.slowSmaDays + 1)
         for symbol in self.universe:
             closes = self.datarepo.GetData(symbol, repoStartDate, repoEndDate)['Close'].values
             smaFast = np.mean(closes[-self.fastSmaDays])
             smaSlow = np.mean(closes[-self.slowSmaDays])
             momentums[symbol] = smaFast / smaSlow
+            prices[symbol] = closes[-1]
 
         buyThreshold = sorted(momentums.values())[-min(self.maxNumPositions, len(momentums))]
         symbolsToBuy = {k: v for k, v in momentums.items() if v >= buyThreshold}
-        pct = 1.0 / len(symbolsToBuy) if len(symbolsToBuy) > 0 else 0.0
+        tgtPositionValue = self.broker.getvalue() / len(symbolsToBuy) if len(symbolsToBuy) > 0 else 0.0
 
         # Sell things first, then buy
         for symbol in self.universe:
             if symbol not in symbolsToBuy:
-                self.order_target_percent(data=self.getdatabyname(symbol), target=0)
+                print("Selling " + symbol)
+                self.order_target_size(data=self.getdatabyname(symbol), target=0)
 
         for symbol in symbolsToBuy:
-            self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
-
-    def next(self):
-        pass
+            print("Buying " + symbol)
+            self.order_target_value(data=self.getdatabyname(symbol), target=tgtPositionValue)

@@ -1,14 +1,19 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import backtrader as bt
-from datetime import datetime, timedelta
+from datetime import datetime
 from ibtrader.SectorRotationStrategy import SectorRotationStrategy
 import ibtrader.PandasRepo as datarepo
 
 
 # TODO:
 # finish integration into IB
-#   for some reason it's shorting the stuff to sell
+#   still not getting data to strategy - delayed, no live notification
+#       make the timer set a flag that trading is OK to go
+#       make the notify_data look for live (see ibtest sample), and set flag
+#       make both call method to see if flags set and trading can execute
+#       if so, call separate method to execute trade
+#           ... or, put trade logic in next() and check for live data and timer exec on each call
 #
 # next branch
 #   add market pullout indicator to strategy
@@ -48,7 +53,7 @@ class BacktraderWrapper:
         store = bt.stores.IBStore(host='127.0.0.1', port=4002, clientId=168)
         for symbol in self._universe:
             data = store.getdata(dataname=symbol, timeframe=bt.TimeFrame.Ticks)
-            cerebro.resampledata(data, timeframe=bt.TimeFrame.Days, compression=1)
+            cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, compression=10)
         cerebro.broker = store.getbroker()
         cerebro.addstrategy(SectorRotationStrategy)
         cerebro.run(runonce=True)
