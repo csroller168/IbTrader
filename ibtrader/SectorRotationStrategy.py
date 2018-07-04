@@ -2,6 +2,8 @@ import backtrader as bt
 from datetime import timedelta
 import ibtrader.PandasRepo as datarepo
 import numpy as np
+from queue import Queue
+from threading import Lock
 
 class SectorRotationStrategy(bt.Strategy):
 
@@ -22,11 +24,18 @@ class SectorRotationStrategy(bt.Strategy):
         self.fastSmaDays = fastSmaDays
         self.slowSmaDays = slowSmaDays
         self.datarepo = datarepo()
+        self.allDataLiveSignal = Queue()
+        self.liveDataSymbols = []
+        self.lock = Lock()
 
     def notify_data(self, data, status, *args, **kwargs):
         print("notify_data: {} {}".format(data.contract.m_localSymbol, data._getstatusname(status)))
         if status == data.LIVE:
-            print("live!")
+            self.lock.acquire()
+            self.liveDataSymbols.append(data.contract.m_localSymbol)
+            self.lock.release()
+            if len(set(self.universe) - set(self.liveDataSymbols)) == 0:
+                self.allDataLiveSignal.put(True)
 
     def notify_store(self, msg, *args, **kwargs):
         print("notify_store: {}".format(msg))
@@ -45,6 +54,7 @@ class SectorRotationStrategy(bt.Strategy):
             print(txt)
 
     def notify_timer(self, timer, when, *args, **kwargs):
+        self.allDataLiveSignal.get(timeout=999999)
         momentums = dict()
         repoEndDate = when - timedelta(days=1)
         repoStartDate = repoEndDate - timedelta(days=self.slowSmaDays+1)
