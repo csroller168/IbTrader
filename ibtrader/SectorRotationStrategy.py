@@ -54,14 +54,14 @@ class SectorRotationStrategy(bt.Strategy):
             print(txt)
 
     def notify_timer(self, timer, when, *args, **kwargs):
-        self.allDataLiveSignal.get(timeout=999999)
+        #self.allDataLiveSignal.get(timeout=999999)
         momentums = dict()
         repoEndDate = when - timedelta(days=1)
         repoStartDate = repoEndDate - timedelta(days=self.slowSmaDays+1)
         for symbol in self.universe:
             closes = self.datarepo.GetData(symbol, repoStartDate, repoEndDate)['Close'].values
-            smaFast = np.mean(closes[-self.fastSmaDays])
-            smaSlow = np.mean(closes[-self.slowSmaDays])
+            smaFast = np.mean(closes[-self.fastSmaDays:])
+            smaSlow = np.mean(closes[-self.slowSmaDays:])
             momentums[symbol] = smaFast / smaSlow
 
         buyThreshold = sorted(momentums.values())[-min(self.maxNumPositions, len(momentums))]
@@ -71,7 +71,9 @@ class SectorRotationStrategy(bt.Strategy):
         # Sell things first, then buy
         for symbol in self.universe:
             if symbol not in symbolsToBuy.keys():
-                self.order_target_percent(data=self.getdatabyname(symbol), target=0)
+                symbolData = self.getdatabyname(name=symbol)
+                holding = self.getpositionbyname(name=symbol, data=symbolData)
+                self.sell(data=symbolData, size=holding)
 
         for symbol in symbolsToBuy:
             self.order_target_percent(data=self.getdatabyname(symbol), target=pct)
